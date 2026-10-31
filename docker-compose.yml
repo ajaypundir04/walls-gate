@@ -1,0 +1,40 @@
+# Local demo: walls-gate + a tiny model served by Ollama (OpenAI-compatible API).
+# Run:  docker compose up --build
+# Smaller/faster but dumber: LLM_MODEL=smollm2:135m docker compose up --build
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  model-pull:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["ollama", "pull", "${LLM_MODEL:-qwen2.5:0.5b}"]
+    restart: "no"
+
+  walls-gate:
+    build: .
+    depends_on:
+      model-pull:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    environment:
+      LLM_BASE_URL: http://ollama:11434/v1
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:0.5b}
+      ADMIN_TOKEN: demo-admin-token
+      WALLSGATE_SEED: "true"
+      AUDIT_FILE: ""
+
+volumes:
+  ollama-data:

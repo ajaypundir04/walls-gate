@@ -1,6 +1,7 @@
 # walls-gate
 
-**Ethical-wall-aware gateway for local LLMs.** An OpenAI-compatible proxy for firms that enforces information barriers *before* a model sees any document.
+**Ethical-wall-aware gateway for local LLMs.** An OpenAI-compatible proxy for law, tax and
+consulting firms that enforces information barriers *before* a model sees any document.
 
 > Status: MVP / proof of concept. Synthetic demo data only. Not production-hardened (see Roadmap).
 
@@ -81,3 +82,17 @@ Config via env vars: `ADMIN_TOKEN`, `WALLSGATE_SEED`, `WALLSGATE_SHADOW_MODE`, `
 
 **Security warning:** the public Render URL trusts the `X-User-Id` header, so anyone who can reach it can
 impersonate any user. Use synthetic demo data only until OIDC/SSO is in place.
+
+## Local demo with a real (tiny) model
+
+Needs Docker only.
+
+```bash
+docker compose up --build      # first run downloads ~400 MB model (qwen2.5:0.5b)
+./demo.sh                      # in a second terminal
+```
+
+- Default model `qwen2.5:0.5b` (~400 MB, CPU is fine). Even smaller: `LLM_MODEL=smollm2:135m docker compose up --build`.
+- Tiny models give weak answers. The point of the demo is the gateway: alice is answered from her matter, bob never
+  receives Acme documents, carol is blocked before the model is called, and every decision lands in the audit CSV.
+- For a better-quality demo later, point `LLM_BASE_URL` at vLLM or a larger Ollama model.

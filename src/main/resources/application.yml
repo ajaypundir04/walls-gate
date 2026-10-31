@@ -14,7 +14,7 @@ wallsgate:
     # OpenAI-compatible base URL of your local model server, e.g. vLLM: http://localhost:8000/v1
     # Blank = built-in mock model, so the app runs out of the box.
     base-url: ${LLM_BASE_URL:}
-    model: mistral-small
+    model: ${LLM_MODEL:mistral-small}
     api-key: ""
   dlp:
     # comma-separated client names to redact, e.g. "Acme,Beta Corp"
