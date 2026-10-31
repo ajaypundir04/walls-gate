@@ -1,0 +1,23 @@
+server:
+  port: ${PORT:8080}
+
+wallsgate:
+  # true = log what WOULD be blocked but let requests through (trial mode for pilots)
+  shadow-mode: ${WALLSGATE_SHADOW_MODE:false}
+  # token required for /admin/** endpoints (X-Admin-Token header). CHANGE THIS.
+  admin-token: ${ADMIN_TOKEN:change-me}
+  # load synthetic demo matters/users/documents on startup
+  seed: ${WALLSGATE_SEED:true}
+  audit:
+    file: ${AUDIT_FILE:audit.jsonl}   # blank = in-memory only
+  llm:
+    # OpenAI-compatible base URL of your local model server, e.g. vLLM: http://localhost:8000/v1
+    # Blank = built-in mock model, so the app runs out of the box.
+    base-url: ${LLM_BASE_URL:}
+    model: mistral-small
+    api-key: ""
+  dlp:
+    # comma-separated client names to redact, e.g. "Acme,Beta Corp"
+    client-names: ""
+    # optional regex for matter numbers to redact, e.g. "\\bM-\\d{4}\\b"
+    matter-number-regex: ""

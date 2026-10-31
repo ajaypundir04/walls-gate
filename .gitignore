@@ -1,0 +1,6 @@
+target/
+*.jsonl
+.idea/
+*.iml
+.vscode/
+.DS_Store

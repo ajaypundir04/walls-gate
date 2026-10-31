@@ -1,0 +1,19 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: walls-gate
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass   # deploy only after GitHub Actions CI passes
+    envVars:
+      - key: ADMIN_TOKEN
+        generateValue: true         # Render creates a random secret; read it in the dashboard
+      - key: WALLSGATE_SEED
+        value: "true"               # synthetic demo data. Set "false" for anything real.
+      - key: WALLSGATE_SHADOW_MODE
+        value: "false"
+      - key: AUDIT_FILE
+        value: ""                   # in-memory audit only (Render disk is ephemeral on free/starter without a disk)
+      - key: LLM_BASE_URL
+        value: ""                   # empty = mock model. Point to your OpenAI-compatible server later.
