@@ -12,7 +12,7 @@
 
 ##  The Core Problem
 
-When deploying AI agents in enterprise and healthcare settings, consumer-facing LLM APIs lack the compliance controls required for confidential operations:
+When deploying AI agents in enterprise settings, consumer-facing LLM APIs lack the compliance controls required for confidential operations:
 
 1. **Identity & Authorization Drift:** Agents frequently interact with LLMs using static service keys, stripping user identity and bypassing granular data access controls.
 2. **Confidentiality & Ethical Wall Collisions:** In multi-tenant or multi-client operations, a user or agent touching two conflicted accounts or matters (e.g. litigation sides or competing care facilities) can inadvertently cause cross-contamination.

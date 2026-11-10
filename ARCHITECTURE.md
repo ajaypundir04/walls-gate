@@ -1,7 +1,7 @@
 # System Architecture, Tradeoffs & Scalability Guide
 
 **System:** `walls-gate`  
-**Purpose:** High-compliance AI Gateway, Agent Runtime & Client SDK for regulated verticals (Healthcare, Frontline Operations, Legal)  
+**Purpose:** High-compliance AI Gateway, Agent Runtime & Client SDK for regulated verticals  
 **Scale Target:** 2,000+ Facilities, 200,000+ Frontline Users, 500+ Peak QPS
 
 ---
