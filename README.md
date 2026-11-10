@@ -2,7 +2,7 @@
 
 [![Java](https://img.shields.io/badge/Java-25%20LTS-orange.png)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.11-brightgreen.png)](https://spring.io/projects/spring-boot)
-[![Build Status](https://img.shields.io/badge/Build-Passing%20(56%20tests)-success.png)]()
+[![Build Status](https://img.shields.io/badge/Build-Passing%20(58%20tests)-success.png)]()
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.png)](LICENSE)
 
 > **Ethical-Wall-Aware Gateway & Agent SDK Runtime for Local LLMs.**  
@@ -118,14 +118,21 @@ Requires **Java 25** and **Maven 3.9+**.
 ```bash
 mvn clean verify
 ```
-*Executes all 56 tests covering concurrent wall checks, budget guards, client SDK behavior, application service orchestration, and ML eval harness.*
+*Executes all 58 tests covering concurrent wall checks, budget guards, client SDK behavior, application service orchestration, OpenAPI contract verification, and ML eval harness.*
 
 ### 2. Start the Gateway
 ```bash
 mvn spring-boot:run
 ```
 
-### 3. Interactive Show-and-Tell Walkthrough
+### 3. Interactive Swagger / OpenAPI Documentation
+When running, explore schemas, test requests, and review security schemes interactively:
+- **Swagger UI Console:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **OpenAPI 3.0 JSON Spec:** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+Includes comprehensive schemas for all models ([`Matter`](file:///home/shankar/project/walls-gate/src/main/java/com/wallsgate/model/Models.java), [`Wall`](file:///home/shankar/project/walls-gate/src/main/java/com/wallsgate/model/Models.java), [`Doc`](file:///home/shankar/project/walls-gate/src/main/java/com/wallsgate/model/Models.java), [`User`](file:///home/shankar/project/walls-gate/src/main/java/com/wallsgate/model/Models.java)), OpenAI-compatible completions, and header security schemes (`X-Admin-Token`, `X-User-Id`, `X-Session-Id`, `X-Trace-Id`).
+
+### 4. Interactive Show-and-Tell Walkthrough
 
 Pre-seeded demo personas:
 - **Alice**: Works on `M-1001` (Acme litigation) and `M-3003` (Gamma advisory).
@@ -219,16 +226,6 @@ src/main/java/com/wallsgate/
   +-- model/
       +-- Models.java         # Immutable domain models (Matter, Wall, Doc, User)
 ```
-
----
-
-##  Deep-Dive Documentation
-
-- [**Master Interview Encyclopedia & Curriculum (interview_prep/)**](file:///home/shankar/project/walls-gate/interview_prep/README.md): Exhaustive printable multi-volume curriculum covering System Design, SRE, Modern JVM/Java 25, Spring Boot 3, Hibernate internals, Advanced SQL queries, NoSQL, Resiliency, Kotlin Coroutines, and TypeScript.
-- [**System Architecture, Tradeoffs & Scaling Guide (ARCHITECTURE.md)**](file:///home/shankar/project/walls-gate/ARCHITECTURE.md): Deep-dive into database selection, pgvector indexing, infrastructure topology on AWS/Kubernetes, and scaling to 200,000+ frontline users.
-- [**voize Interview Playbook & Cheatsheet (VOIZE_INTERVIEW_PREP_GUIDE.md)**](file:///home/shankar/project/walls-gate/VOIZE_INTERVIEW_PREP_GUIDE.md): 45-minute show-and-tell talk track, coroutines vs Loom vs OS threads analysis, and strategic interview questions.
-- [**100+ Master Interview Questions & Answers (INTERVIEW_QUESTIONS_100.md)**](file:///home/shankar/project/walls-gate/INTERVIEW_QUESTIONS_100.md): 110 comprehensive questions covering Kotlin Coroutines, Java 25, System Design, AI Agent Architecture, and voize scenarios.
-
 ---
 
 ##  License

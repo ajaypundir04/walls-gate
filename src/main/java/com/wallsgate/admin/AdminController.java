@@ -1,10 +1,20 @@
 package com.wallsgate.admin;
 
+import com.wallsgate.config.OpenApiConfig;
 import com.wallsgate.domain.exception.UnauthorizedException;
 import com.wallsgate.domain.repository.PolicyRepository;
 import com.wallsgate.gateway.AuditService;
 import com.wallsgate.model.Models.*;
 import com.wallsgate.service.AdminService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +35,8 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/admin")
+@Tag(name = "Admin", description = "Administrative endpoints for matter boundaries, ethical walls, ACLs, and compliance logs")
+@SecurityRequirement(name = OpenApiConfig.SECURITY_ADMIN_TOKEN)
 public class AdminController {
 
     private static final String HEADER_ADMIN_TOKEN = "X-Admin-Token";
@@ -49,15 +61,30 @@ public class AdminController {
     // ------------------------------------------------------------------------
 
     @GetMapping("/matters")
-    public Collection<Matter> matters(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
+    @Operation(summary = "List all matters", description = "Retrieves all registered legal matters or confidential projects.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved matters list"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public Collection<Matter> matters(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
         authenticate(token);
         return adminService.getMatters();
     }
 
     @PostMapping("/matters")
     @ResponseStatus(HttpStatus.CREATED)
-    public Matter addMatter(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token,
-                            @RequestBody Matter matter) {
+    @Operation(summary = "Register a matter", description = "Creates or registers a new confidential matter boundary.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Matter registered successfully"),
+            @ApiResponse(responseCode = "400", description = "Matter id or name is blank"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public Matter addMatter(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token,
+            @RequestBody Matter matter) {
         authenticate(token);
         try {
             return adminService.registerMatter(matter);
@@ -71,15 +98,30 @@ public class AdminController {
     // ------------------------------------------------------------------------
 
     @GetMapping("/walls")
-    public Set<Wall> walls(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
+    @Operation(summary = "List all ethical walls", description = "Retrieves all active information barriers separating conflicted matters.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved ethical walls"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public Set<Wall> walls(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
         authenticate(token);
         return adminService.getWalls();
     }
 
     @PostMapping("/walls")
     @ResponseStatus(HttpStatus.CREATED)
-    public Wall addWall(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token,
-                        @RequestBody Wall wall) {
+    @Operation(summary = "Establish an ethical wall", description = "Creates an information barrier between two conflicted matters.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Ethical wall established successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid matter IDs or attempt to wall a matter against itself"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public Wall addWall(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token,
+            @RequestBody Wall wall) {
         authenticate(token);
         try {
             return adminService.establishWall(wall);
@@ -93,15 +135,30 @@ public class AdminController {
     // ------------------------------------------------------------------------
 
     @GetMapping("/users")
-    public Collection<User> users(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
+    @Operation(summary = "List all users", description = "Retrieves all registered users and their authorized matter scopes.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved users list"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public Collection<User> users(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
         authenticate(token);
         return adminService.getUsers();
     }
 
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
-    public User addUser(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token,
-                        @RequestBody User user) {
+    @Operation(summary = "Register or update user permissions", description = "Sets or updates the matter access scopes for a user.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "User permissions registered successfully"),
+            @ApiResponse(responseCode = "400", description = "User id is blank"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public User addUser(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token,
+            @RequestBody User user) {
         authenticate(token);
         try {
             return adminService.registerUser(user);
@@ -115,15 +172,30 @@ public class AdminController {
     // ------------------------------------------------------------------------
 
     @GetMapping("/documents")
-    public Collection<Doc> documents(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
+    @Operation(summary = "List all documents", description = "Retrieves all documents currently stored in the knowledge base.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved documents list"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public Collection<Doc> documents(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
         authenticate(token);
         return adminService.getDocuments();
     }
 
     @PostMapping("/documents")
     @ResponseStatus(HttpStatus.CREATED)
-    public Doc addDoc(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token,
-                      @RequestBody Doc doc) {
+    @Operation(summary = "Ingest a document", description = "Stores a new document associated with a specific matter ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Document ingested successfully"),
+            @ApiResponse(responseCode = "400", description = "Document id, matterId, or text is blank"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public Doc addDoc(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token,
+            @RequestBody Doc doc) {
         authenticate(token);
         try {
             return adminService.ingestDocument(doc);
@@ -137,13 +209,31 @@ public class AdminController {
     // ------------------------------------------------------------------------
 
     @GetMapping("/audit")
-    public List<AuditService.AuditEvent> audit(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
+    @Operation(summary = "Retrieve audit events stream", description = "Returns the structured JSON audit trail of all gateway completion requests.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved audit events"),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public List<AuditService.AuditEvent> audit(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
         authenticate(token);
         return adminService.getAuditEvents();
     }
 
     @GetMapping(value = "/audit.csv", produces = "text/csv")
-    public ResponseEntity<String> auditCsv(@RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
+    @Operation(summary = "Export audit log as CSV", description = "Exports the audit trail as a CSV attachment, neutralized against formula injection.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Downloadable CSV audit export",
+                    content = @Content(mediaType = "text/csv", schema = @Schema(type = "string"))
+            ),
+            @ApiResponse(responseCode = "401", description = "Invalid or missing X-Admin-Token header")
+    })
+    public ResponseEntity<String> auditCsv(
+            @Parameter(name = HEADER_ADMIN_TOKEN, in = ParameterIn.HEADER, description = "Admin authorization token", required = false)
+            @RequestHeader(value = HEADER_ADMIN_TOKEN, required = false) String token) {
         authenticate(token);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=audit.csv")
