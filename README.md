@@ -10,9 +10,13 @@ consulting firms that enforces information barriers *before* a model sees any do
 | Capability | Where |
 |---|---|
 | OpenAI-style `POST /v1/chat/completions` in front of any local model (vLLM, Ollama, llama.cpp) | `GatewayController`, `LlmClient` |
+| Client-facing Agent SDK & Typed Exceptions (`WallsGateClient`, `AgentContext`) | `com.wallsgate.sdk` |
 | Permission-aware retrieval: docs a user can't open never reach the model | `Retriever` |
 | Wall rules: block (or flag) sessions that touch two conflicted matters | `WallEngine` |
+| Shared limits on token usage & tool output guardrails | `TokenBudgetGuard` |
 | DLP / redaction (email, IBAN, phone, client names, matter numbers) on prompts, context and answers | `Redactor` |
+| ML Evaluation Harness for regression testing security & PII before model updates ship | `AgentEvalHarness` |
+| Structured Logging & Distributed Tracing Context (MDC) | `GatewayController` |
 | Shadow mode: log what *would* be blocked, without blocking | `wallsgate.shadow-mode` |
 | Audit trail with CSV export: who, what, which docs, blocked/allowed, why | `AuditService`, `/admin/audit.csv` |
 | Admin API for matters, walls, users, documents | `AdminController` |
@@ -61,9 +65,11 @@ Trial mode for pilots: `wallsgate.shadow-mode: true`.
 
 ```
 src/main/java/com/wallsgate/
+  sdk/      WallsGateClient, AgentContext, domain exceptions (SDK contract for consumers)
+  eval/     AgentEvalHarness (eval suite runner before model/prompt updates ship)
   gateway/  GatewayController, LlmClient, AuditService
-  policy/   PolicyStore, Retriever, WallEngine, Redactor, SeedData
-  admin/    AdminController
+  policy/   PolicyStore, Retriever, WallEngine, Redactor, TokenBudgetGuard, SeedData
+  admin/    AdminController, HealthController
   model/    Models
 ```
 
