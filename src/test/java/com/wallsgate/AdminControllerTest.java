@@ -51,7 +51,8 @@ class AdminControllerTest {
     @DisplayName("Allows adding and reading matters with valid token")
     void managesMatters() {
         Matter m = new Matter("M-9999", "Special Project");
-        controller.addMatter(VALID_TOKEN, m);
+        Matter result = controller.addMatter(VALID_TOKEN, m);
+        assertEquals(m, result);
 
         Collection<Matter> matters = controller.matters(VALID_TOKEN);
         assertEquals(1, matters.size());
@@ -59,9 +60,23 @@ class AdminControllerTest {
     }
 
     @Test
+    @DisplayName("Rejects adding matter with blank id or name with 400 BAD REQUEST")
+    void rejectsInvalidMatter() {
+        ResponseStatusException ex1 = assertThrows(ResponseStatusException.class, () ->
+                controller.addMatter(VALID_TOKEN, new Matter("", "Name")));
+        assertEquals(HttpStatus.BAD_REQUEST, ex1.getStatusCode());
+
+        ResponseStatusException ex2 = assertThrows(ResponseStatusException.class, () ->
+                controller.addMatter(VALID_TOKEN, new Matter("M-1", "  ")));
+        assertEquals(HttpStatus.BAD_REQUEST, ex2.getStatusCode());
+    }
+
+    @Test
     @DisplayName("Allows adding and reading walls with valid token")
     void managesWalls() {
-        controller.addWall(VALID_TOKEN, new Wall("M-1", "M-2"));
+        Wall wall = new Wall("M-1", "M-2");
+        Wall result = controller.addWall(VALID_TOKEN, wall);
+        assertEquals(wall, result);
 
         Set<Wall> walls = controller.walls(VALID_TOKEN);
         assertEquals(1, walls.size());
@@ -69,22 +84,56 @@ class AdminControllerTest {
     }
 
     @Test
-    @DisplayName("Allows adding and reading users with valid token")
-    void managesUsers() {
-        controller.addUser(VALID_TOKEN, new User("dev-user", Set.of("M-1")));
-
-        Collection<User> users = controller.users(VALID_TOKEN);
-        assertEquals(1, users.size());
-        assertTrue(users.stream().anyMatch(u -> u.id().equals("dev-user")));
+    @DisplayName("Rejects creating ethical wall between a matter and itself")
+    void rejectsSelfWalling() {
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () ->
+                controller.addWall(VALID_TOKEN, new Wall("M-1", "M-1")));
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+        assertTrue(ex.getReason().contains("itself"));
     }
 
     @Test
-    @DisplayName("Allows adding documents with valid token")
+    @DisplayName("Allows adding and reading users with valid token")
+    void managesUsers() {
+        User u = new User("dev-user", Set.of("M-1"));
+        User result = controller.addUser(VALID_TOKEN, u);
+        assertEquals(u, result);
+
+        Collection<User> users = controller.users(VALID_TOKEN);
+        assertEquals(1, users.size());
+        assertTrue(users.stream().anyMatch(user -> user.id().equals("dev-user")));
+    }
+
+    @Test
+    @DisplayName("Rejects user with blank id")
+    void rejectsInvalidUser() {
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () ->
+                controller.addUser(VALID_TOKEN, new User("  ", Set.of())));
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+    }
+
+    @Test
+    @DisplayName("Allows adding and reading documents with valid token")
     void managesDocuments() {
         Doc d = new Doc("d-99", "M-1", "Title", "Text");
-        controller.addDoc(VALID_TOKEN, d);
+        Doc result = controller.addDoc(VALID_TOKEN, d);
+        assertEquals(d, result);
 
-        assertEquals(1, store.docs().size());
+        Collection<Doc> docs = controller.documents(VALID_TOKEN);
+        assertEquals(1, docs.size());
+        assertTrue(docs.stream().anyMatch(doc -> doc.id().equals("d-99")));
+    }
+
+    @Test
+    @DisplayName("Rejects document with blank text or missing matterId")
+    void rejectsInvalidDocument() {
+        ResponseStatusException ex1 = assertThrows(ResponseStatusException.class, () ->
+                controller.addDoc(VALID_TOKEN, new Doc("d-1", "", "Title", "Text")));
+        assertEquals(HttpStatus.BAD_REQUEST, ex1.getStatusCode());
+
+        ResponseStatusException ex2 = assertThrows(ResponseStatusException.class, () ->
+                controller.addDoc(VALID_TOKEN, new Doc("d-1", "M-1", "Title", "   ")));
+        assertEquals(HttpStatus.BAD_REQUEST, ex2.getStatusCode());
     }
 
     @Test
